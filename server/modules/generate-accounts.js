@@ -27,13 +27,26 @@ let _createUsers = ( users ) => {
         userExists = _checkIfUserExists( user.email );
 
     if ( !userExists ) {
-      _createUser( user );
+      let userID  = _createUser( user ),
+          isAdmin = _checkIfAdmin( user.email );
+
+      if ( isAdmin ) {
+        Roles.setUserRoles( userId, 'admin' );
+      } else {
+        Roles.setUserRoles( userId, 'employees' );
+      }
     }
   }
 };
 
 let _checkIfUserExists = ( email ) => {
   return Meteor.users.findOne( { 'emails.address': email } );
+};
+
+let _checkIfAdmin = ( email ) => {
+  return _.find( administrators, ( admin ) => {
+    return admin.email === email;
+  });
 };
 
 let _createUser = ( user ) => {
